@@ -1,0 +1,11 @@
+steps:
+- name: 'gcr.io/cloud-builders/gcloud'
+  args:
+  - funtions
+  - deploy
+  - puncake_gcp
+  - --source=.
+  - --trigeger-http
+  - --runtime=node16
+  - --allow-unauthenticated
+  
