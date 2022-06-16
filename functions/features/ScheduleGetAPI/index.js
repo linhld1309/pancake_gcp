@@ -1,25 +1,28 @@
-const { initializeApp } = require("firebase/app");
-const { getFirestore, collection, getDocs, doc, setDoc, Timestamp } = require("firebase/firestore");
-const axios  = require("axios").default;
-const firebaseConfig = require("../../firebase-config.json")
+const { getFirestore, Timestamp } = require('firebase-admin/firestore');
+const axios = require("axios").default;
+
+var admin = require("firebase-admin");
+
+var serviceAccount = require("../../admin/admin.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
 
 const PANCAKE_URL = 'https://api.pancakeswap.info/api/v2/tokens'
 module.exports = async function ScheduleGetAPI () {  
-  // Initialize Firebase
-  initializeApp({
-    credential: applicationDefault()
-  });
   const db = getFirestore();
+  const tokensRef = db.collection('tokens');
 
   const old_tokens_data = new Map();
   const get_old_data = async function() {
-    const querySnapshot = await getDocs(collection(db, "tokens"));
+    const querySnapshot = await tokensRef.get();
+
     querySnapshot.forEach((doc) => {
       return old_tokens_data.set(doc.id, doc.data())
     })
     return old_tokens_data
   }
-  console.log('job running')
 
   return axios(url = PANCAKE_URL, {
     method: 'GET',
@@ -42,17 +45,19 @@ module.exports = async function ScheduleGetAPI () {
     keys.forEach(async token_id => {
       const token_data = tokens_data[token_id]
       const old_token_data = old_tokens_data.get(token_id)
-
+      
       const { name, symbol, price, price_BNB } = token_data
-      const old_price = old_token_data.price
-
-      if ( price / old_price > 10 ) {
-        // send notification to telegram
-        console.log(price, old_price)
+      if (old_token_data) {
+        const old_price = old_token_data.price
+        
+        if ( price / old_price > 10 ) {
+          // send notification to telegram
+          console.log(price, old_price)
+        }
       }
-
       token_data.date = Timestamp.fromDate(new Date())
-      await setDoc(doc(db, "tokens", token_id), token_data);
+
+      await tokensRef.doc(token_id).set(token_data);
     });
   })
   .catch(error => {
