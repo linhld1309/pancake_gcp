@@ -1,7 +1,9 @@
 const { getFirestore, Timestamp } = require('firebase-admin/firestore');
 const axios = require("axios").default;
+const SendMessage = require("../SendMessage")
 
 const PANCAKE_URL = 'https://api.pancakeswap.info/api/v2/tokens'
+const MULTIPLE = 10
 module.exports = async function ScheduleGetAPI () {  
   const db = getFirestore();
   const tokensRef = db.collection('tokens');
@@ -34,21 +36,24 @@ module.exports = async function ScheduleGetAPI () {
     if (!old_tokens_data) return
     
     keys = Object.keys(tokens_data)
-    keys.forEach(async token_id => {
+    
+    await keys.forEach(async token_id => {
       const token_data = tokens_data[token_id]
       const old_token_data = old_tokens_data.get(token_id)
       
-      const { name, symbol, price, price_BNB } = token_data
+      const { name, price } = token_data
       if (old_token_data) {
         const old_price = old_token_data.price
-        
-        if ( price / old_price > 10 ) {
-          // send notification to telegram
-          console.log(price, old_price)
+        const price_multiples = (old_price / price).toFixed()
+
+        if ( price_multiples > MULTIPLE ) {
+          // send message to telegram
+          const message = `Token: ${name} multiple: ${price_multiples} OldPrice: ${old_price} - Price: ${price}`
+          SendMessage(message)
         }
       }
+      // update data to firebase
       token_data.date = Timestamp.fromDate(new Date())
-
       await tokensRef.doc(token_id).set(token_data);
     });
   })
