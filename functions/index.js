@@ -1,3 +1,4 @@
+require('./admin')
 const functions = require("firebase-functions");
 
 const api = require('./features/ScheduleGetAPI')

@@ -1,14 +1,6 @@
 const { getFirestore, Timestamp } = require('firebase-admin/firestore');
 const axios = require("axios").default;
 
-var admin = require("firebase-admin");
-
-var serviceAccount = require("../../admin/admin.json");
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
-
 const PANCAKE_URL = 'https://api.pancakeswap.info/api/v2/tokens'
 module.exports = async function ScheduleGetAPI () {  
   const db = getFirestore();
