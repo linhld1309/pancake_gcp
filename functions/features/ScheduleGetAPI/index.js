@@ -1,6 +1,7 @@
 const { getFirestore, Timestamp } = require('firebase-admin/firestore');
 const axios = require("axios").default;
 const SendMessage = require("../SendMessage")
+const _ = require("lodash")
 
 const PANCAKE_URL = 'https://api.pancakeswap.info/api/v2/tokens'
 const MULTIPLE = 10
@@ -45,10 +46,11 @@ module.exports = async function ScheduleGetAPI () {
       if (old_token_data) {
         const old_price = old_token_data.price
         const price_multiples = (old_price / price).toFixed()
+        const check_logic = price_multiples > MULTIPLE
 
-        if ( price_multiples > MULTIPLE ) {
+        if ( check_logic ) {
           // send message to telegram
-          const message = `Token: ${name} multiple: ${price_multiples} OldPrice: ${old_price} - Price: ${price}`
+          const message = `Token: ${name}, multiple: ${price_multiples}, OldPrice: ${ _.round((old_price), 5) } - Price: ${_.round((price), 5)}`
           SendMessage(message)
         }
       }

@@ -1,5 +1,3 @@
-// const { Telegraf } = require('telegraf')
-const TelegramBot = require("node-telegram-bot-api");
 const axios = require('axios').default;
 
 module.exports = function SendMessage (message) { 
