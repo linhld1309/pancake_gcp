@@ -1,23 +1,18 @@
 const axios = require('axios').default;
 
-module.exports = function SendMessage (message) { 
-  const chatId = process.env.CHAT_ID
+module.exports = async function SendMessage (message) { 
+  const chatIdOne = process.env.CHAT_ID_ONE
+  const chatIdTwo = process.env.CHAT_ID_TWO
   const bot_token = process.env.BOT_TOKEN
 
-  const TELE_URL = `https://api.telegram.org/bot${bot_token}/sendMessage?chat_id=${chatId}&text=${message.toString()}`
+  
+  const TELE_URL_ONE = `https://api.telegram.org/bot${bot_token}/sendMessage?chat_id=${chatIdOne}&text=${message.toString()}`
+  const TELE_URL_TWO = `https://api.telegram.org/bot${bot_token}/sendMessage?chat_id=${chatIdTwo}&text=${message.toString()}`
 
-  return axios(TELE_URL, {
-    method: 'GET',
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Content-Type': 'application/json',
-    },
-    credentials: 'same-origin'
-  })
-  .then(res => {
-    console.log(res, res.status, "data")
-  })
-  .catch(error => {
-    console.error(error);
-  });
+  const [firstResponse, secondResponse] = await Promise.all([
+    axios.get(TELE_URL_ONE),
+    axios.get(TELE_URL_TWO)
+  ]);
+
+  console.log(firstResponse, secondResponse)
 }

@@ -4,7 +4,7 @@ const SendMessage = require("../SendMessage")
 const _ = require("lodash")
 
 const PANCAKE_URL = 'https://api.pancakeswap.info/api/v2/tokens'
-const MULTIPLE = 10
+const MULTIPLE = 2
 module.exports = async function ScheduleGetAPI () {  
   const db = getFirestore();
   const tokensRef = db.collection('tokens');
